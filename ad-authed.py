@@ -443,11 +443,11 @@ def gather_smb_data(args, domain, modules):
 
         except subprocess.CalledProcessError as e:
             print(f"Error running smb command for module {module}: {e}")
-            sys.exit(1)
+            continue
 
         except Exception as ex:
             print(f"Error with module {module}: {ex}")
-            sys.exit(1)
+            continue
 
 
 modules = [
@@ -613,7 +613,7 @@ def run_windapsearch(args, username, password, hash_value, domain, dc, output_di
 
     for module in modules:
         if args.proxychains:
-            sys.exit(1)
+            continue
 
         command = base_cmd + [
             '-u', username,
