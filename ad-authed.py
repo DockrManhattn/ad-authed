@@ -478,12 +478,17 @@ def gather_smb_spider_data(args, output_dir, domain):
         
         src_dir = "/tmp/nxc_hosted/nxc_spider_plus/"
         for filename in os.listdir(src_dir):
-            if 'spider_plus' in filename or args.target_ip in filename:
-                src = os.path.join(src_dir, filename)
-                dst = os.path.join(spider_plus_dir, filename)
-                # Copy and overwrite if destination exists
-                shutil.copy2(src, dst)
-                os.remove(src)  # Remove the source file after copying
+            src = os.path.join(src_dir, filename)
+            dst = os.path.join(spider_plus_dir, filename)
+            
+            # Check if source is a file or a directory
+            if os.path.isfile(src):
+                shutil.move(src, dst)  # Overwrite if destination exists
+            elif os.path.isdir(src):
+                # If destination directory exists, remove it before copying
+                if os.path.exists(dst):
+                    shutil.rmtree(dst)
+                shutil.copytree(src, dst)
 
     except subprocess.CalledProcessError as e:
         print(f"Error running smb_spider: {e}")
@@ -491,8 +496,6 @@ def gather_smb_spider_data(args, output_dir, domain):
     except Exception as ex:
         print(f"Error: {ex}")
         sys.exit(1)
-
-
 
 def gather_enum4linux_ng_data(args, output_dir):
 
