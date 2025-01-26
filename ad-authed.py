@@ -443,11 +443,11 @@ def gather_smb_data(args, domain, modules):
 
         except subprocess.CalledProcessError as e:
             print(f"Error running smb command for module {module}: {e}")
-            continue
+            sys.exit(1)
 
         except Exception as ex:
             print(f"Error with module {module}: {ex}")
-            continue
+            sys.exit(1)
 
 
 modules = [
@@ -613,7 +613,7 @@ def run_windapsearch(args, username, password, hash_value, domain, dc, output_di
 
     for module in modules:
         if args.proxychains:
-            continue
+            sys.exit(1)
 
         command = base_cmd + [
             '-u', username,
@@ -702,10 +702,10 @@ def gather_certipy_data(args, domain, dc, output_dir):
 
     except subprocess.CalledProcessError as e:
         print(f"Error running certipy: {e}")
-        continue
+        sys.exit(1)
     except Exception as ex:
         print(f"Error: {ex}")
-        continue
+        sys.exit(1)
 
 def gather_certipy_vulnerable(args, domain, dc, output_dir):
 
@@ -753,7 +753,7 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
 
     except subprocess.CalledProcessError as e:
         print(f"Error running certipy: {e}")
-        continue
+        sys.exit(1)
 
 
 
