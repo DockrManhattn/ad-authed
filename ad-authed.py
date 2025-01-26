@@ -708,7 +708,8 @@ def gather_certipy_data(args, domain, dc, output_dir):
         sys.exit(1)
 
 def gather_certipy_vulnerable(args, domain, dc, output_dir):
-
+    GRAY = "\033[90m"
+    RESET = "\033[0m"
 
     try:
         # Build the command with optional proxychains
