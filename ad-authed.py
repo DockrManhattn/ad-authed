@@ -726,7 +726,7 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
                 script_path, 'find',
                 '-u', args.username,
                 '-p', args.password,
-                '-dc-ip', dc,
+                '-dc-ip', args.target_ip,
                 '-vulnerable',
                 '-stdout'
             ]
@@ -735,7 +735,7 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
                 script_path, 'find',
                 '-u', args.username,
                 '-H', args.hash,
-                '-dc-ip', dc,
+                '-dc-ip', args.target_ip,
                 '-vulnerable',
                 '-stdout'
             ]
@@ -743,16 +743,14 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
             cmd = proxychains_command + [
                 script_path, 'find',
                 '--use-kcache',
-                '-dc-ip', dc,
+                '-dc-ip', args.target_ip,
                 '-vulnerable',
                 '-stdout'
             ]
 
-        # Print and run the command
         print(f"{GRAY}Running command:{RESET} {' '.join(cmd)}")
         subprocess.check_call(cmd)
 
-        # Optional: Save the standard output to a file in the output directory
         output_file = os.path.join(output_dir, 'certipy-output.txt')
         with open(output_file, 'w') as f:
             subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
@@ -760,7 +758,6 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
     except subprocess.CalledProcessError as e:
         print(f"Error running certipy: {e}")
         sys.exit(1)
-
 
 
 def execute_commands(args, domain, dc, hostname):
