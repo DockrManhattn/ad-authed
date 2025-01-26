@@ -481,7 +481,9 @@ def gather_smb_spider_data(args, output_dir, domain):
             if 'spider_plus' in filename or args.target_ip in filename:
                 src = os.path.join(src_dir, filename)
                 dst = os.path.join(spider_plus_dir, filename)
-                shutil.move(src, dst)
+                # Copy and overwrite if destination exists
+                shutil.copy2(src, dst)
+                os.remove(src)  # Remove the source file after copying
 
     except subprocess.CalledProcessError as e:
         print(f"Error running smb_spider: {e}")
