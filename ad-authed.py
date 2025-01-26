@@ -707,7 +707,7 @@ def gather_certipy_data(args, domain, dc, output_dir):
         print(f"Error: {ex}")
         continue
 
-def get_certipy_vulnerable(args, domain, dc, output_dir):
+def gather_certipy_vulnerable(args, domain, dc, output_dir):
 
 
     try:
@@ -794,7 +794,7 @@ def execute_commands(args, domain, dc, hostname):
     gather_laps_data(args, domain, dc, output_dir)
     gather_smb_spider_data(args, output_dir, domain)
     gather_certipy_data(args, domain, dc, output_dir)
-    get_certipy_vulnerable(args, domain, dc, output_dir)
+    gather_certipy_vulnerable(args, domain, dc, output_dir)
     
     print_psexec_command(args, args.target_ip, dc, args.target_ip, ccache_file, hostname)
 
