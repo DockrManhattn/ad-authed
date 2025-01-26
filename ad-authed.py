@@ -702,10 +702,59 @@ def gather_certipy_data(args, domain, dc, output_dir):
 
     except subprocess.CalledProcessError as e:
         print(f"Error running certipy: {e}")
-        sys.exit(1)
+        continue
     except Exception as ex:
         print(f"Error: {ex}")
-        sys.exit(1)
+        continue
+
+def get_certipy_vulnerable(args, domain, dc, output_dir):
+
+
+    try:
+        # Build the command with optional proxychains
+        proxychains_command = ['proxychains', '-q'] if args.proxychains else []
+        script_path = os.path.expanduser('~/.local/bin/certipy')
+
+        if args.password:
+            cmd = proxychains_command + [
+                script_path, 'find',
+                '-u', args.username,
+                '-p', args.password,
+                '-dc-ip', dc,
+                '-vulnerable',
+                '-stdout'
+            ]
+        elif args.hash:
+            cmd = proxychains_command + [
+                script_path, 'find',
+                '-u', args.username,
+                '-H', args.hash,
+                '-dc-ip', dc,
+                '-vulnerable',
+                '-stdout'
+            ]
+        elif args.ticket:
+            cmd = proxychains_command + [
+                script_path, 'find',
+                '--use-kcache',
+                '-dc-ip', dc,
+                '-vulnerable',
+                '-stdout'
+            ]
+
+        # Print and run the command
+        print(f"{GRAY}Running command:{RESET} {' '.join(cmd)}")
+        subprocess.check_call(cmd)
+
+        # Optional: Save the standard output to a file in the output directory
+        output_file = os.path.join(output_dir, 'certipy-output.txt')
+        with open(output_file, 'w') as f:
+            subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running certipy: {e}")
+        continue
+
 
 
 def execute_commands(args, domain, dc, hostname):
@@ -745,6 +794,7 @@ def execute_commands(args, domain, dc, hostname):
     gather_laps_data(args, domain, dc, output_dir)
     gather_smb_spider_data(args, output_dir, domain)
     gather_certipy_data(args, domain, dc, output_dir)
+    get_certipy_vulnerable(args, domain, dc, output_dir)
     
     print_psexec_command(args, args.target_ip, dc, args.target_ip, ccache_file, hostname)
 
