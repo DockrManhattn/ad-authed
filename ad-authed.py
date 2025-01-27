@@ -668,7 +668,7 @@ def gather_certipy_data(args, domain, dc, output_dir):
         if args.ticket:
             return
 
-        certipy_binary = f'/home/{user}/.local/bin/certipy'
+        certipy_binary = os.path.expanduser('~/.local/bin/certipy')
         proxychains_command = ['proxychains', '-q'] if args.proxychains else []
         
         if args.hash:
