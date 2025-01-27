@@ -721,28 +721,25 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
         proxychains_command = ['proxychains', '-q'] if args.proxychains else []
         script_path = os.path.expanduser('~/.local/bin/certipy')
 
-        if args.password:
+        # Handle tickets, hashes, and passwords like the other function
+        if args.ticket:
+            # Return early if a ticket is provided, as in gather_certipy_data
+            return
+        
+        if args.hash:
+            cmd = proxychains_command + [
+                script_path, 'find',
+                '-u', args.username,
+                '-hashes', f'aad3b435b51404eeaad3b435b51404ee:{args.hash}',
+                '-dc-ip', args.target_ip,
+                '-vulnerable',
+                '-stdout'
+            ]
+        else:
             cmd = proxychains_command + [
                 script_path, 'find',
                 '-u', args.username,
                 '-p', args.password,
-                '-dc-ip', args.target_ip,
-                '-vulnerable',
-                '-stdout'
-            ]
-        elif args.hash:
-            cmd = proxychains_command + [
-                script_path, 'find',
-                '-u', args.username,
-                '-H', args.hash,
-                '-dc-ip', args.target_ip,
-                '-vulnerable',
-                '-stdout'
-            ]
-        elif args.ticket:
-            cmd = proxychains_command + [
-                script_path, 'find',
-                '--use-kcache',
                 '-dc-ip', args.target_ip,
                 '-vulnerable',
                 '-stdout'
@@ -758,6 +755,7 @@ def gather_certipy_vulnerable(args, domain, dc, output_dir):
     except subprocess.CalledProcessError as e:
         print(f"Error running certipy: {e}")
         sys.exit(1)
+
 
 
 def execute_commands(args, domain, dc, hostname):
