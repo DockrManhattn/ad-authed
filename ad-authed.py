@@ -553,7 +553,7 @@ def gather_ldapdomaindump_data(args, domain, output_dir):
 
     except subprocess.CalledProcessError as e:
         print(f"Error running ldapdomaindump: {e}")
-        sys.exit(1)
+        pass
 
 
 def get_tgt(args, domain, target_ip):
