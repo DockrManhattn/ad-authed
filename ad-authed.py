@@ -497,6 +497,34 @@ def gather_smb_spider_data(args, output_dir, domain):
         print(f"Error: {ex}")
         sys.exit(1)
 
+def gather_adidnsdump_data(args, domain, dc, output_dir):
+    GRAY = "\033[90m"
+    RESET = "\033[0m"
+
+    try:
+        # Skip if hash or ticket is provided
+        if args.hash or args.ticket:
+            print(f"{GRAY}Skipping adidnsdump data gathering due to provided hash or ticket{RESET}")
+            return  # Skip execution if hash or ticket is present
+
+        # Construct the command for password-based authentication
+        proxychains_command = ['proxychains', '-q'] if args.proxychains else []
+        cmd = proxychains_command + ['adidnsdump', '-u', f'{domain}\\{args.username}', '-p', args.password, 
+                                    f'{dc}', '--print-zones', '--forest', '--dns-tcp', '-v']
+
+        print(f"{GRAY}Running command:{RESET} {' '.join(cmd)}")
+        subprocess.check_call(cmd)
+
+        # Move output to the specified directory if the output file is generated
+        src = 'adidnsdump-output.txt'  # Adjust this if the tool generates a different output file
+        dst = os.path.join(output_dir, src)
+        if os.path.exists(src):
+            shutil.move(src, dst)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running adidnsdump data gathering: {e}")
+        pass
+
 def gather_enum4linux_ng_data(args, output_dir):
 
     GRAY = "\033[90m"
@@ -682,7 +710,7 @@ def gather_certipy_data(args, domain, dc, output_dir):
                 certipy_binary, 'find', '-u', args.username, '-p', args.password,
                 '-dc-ip', args.target_ip, '-vulnerable', '-old-bloodhound'
             ]
-        print(f"certipy command: {' '.join(map(str, certipy_command))}")
+        print(f"{GRAY}Running command:{RESET} {' '.join(map(str, certipy_command))}")
         subprocess.check_call(proxychains_command + certipy_command)
 
         time.sleep(2)
@@ -794,6 +822,7 @@ def execute_commands(args, domain, dc, hostname):
     gather_machine_account_quota(args, domain, dc, output_dir)
     gather_laps_data(args, domain, dc, output_dir)
     gather_smb_spider_data(args, output_dir, domain)
+    gather_adidnsdump_data(args, domain, dc, output_dir)
     gather_certipy_data(args, domain, dc, output_dir)
     gather_certipy_vulnerable(args, domain, dc, output_dir)
     
