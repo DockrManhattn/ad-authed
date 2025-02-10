@@ -224,7 +224,7 @@ def gather_targeted_kerberoast_data(args, domain, dc, output_dir):
         elif args.ticket:
             cmd = proxychains_command + [
                 'python3', script_path,
-                '--use-kcache',
+                '-k',
                 '-d', domain,
                 '--dc-ip', dc
             ]
