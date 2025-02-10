@@ -22,6 +22,9 @@ def install_netexec():
 def install_certipy():
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'certipy-ad', '--break-system-packages'], check=True)
 
+def install_adidnsdump():
+    subprocess.run([sys.executable, '-m', 'pip', 'install', 'git+https://github.com/dirkjanm/adidnsdump#egg=adidnsdump'], check=True)
+
 # Ensure python3.12-venv is installed
 install_python_venv()
 
@@ -38,6 +41,9 @@ try:
         install_certipy()
 except subprocess.CalledProcessError:
     install_certipy()
+
+# Install adidnsdump
+install_adidnsdump()
 
 home_directory = os.path.expanduser("~")
 bin_directory = os.path.join(home_directory, ".local", "bin")
